@@ -72,10 +72,10 @@
     --sec3-dark: color-mix(in srgb, var(--sec3) 72%, black);
     --sec4-dark: color-mix(in srgb, var(--sec4) 60%, black);
     --muted-soft: color-mix(in srgb, var(--muted) 35%, white);
-    --surface-tint: #FAFBFE; /* off-blanc neutre unique (remplace #FAFBFD/#FAFBFE dupliqués) */
+    --surface-tint: #FAFBFE; /* off-blanc neutre unique */
 
-    /* ---- Accents fixes d'une page/carte précise (pas un cyclage par sujet de contenu — cf.
-       style-tech.md ▸ "Couleurs de groupe de contenu", système retiré le 2026-08-21) ---- */
+    /* ---- Accents fixes d'une page/carte précise (pas de couleur par sujet de contenu — cf.
+       style-tech.md ▸ "Couleurs de groupe de contenu") ---- */
     --code-tint: var(--accent-soft);
     --result-tint: var(--sec4-soft);
     --lex: var(--accent);       /* page Lexique */
@@ -89,9 +89,9 @@
     --shadow-bar: 0 6px 18px rgba(0,0,0,0.28);
   }
 
-  /* ---------- Mode sombre (2026-08-21) — mêmes principes que le skill style-html-generation,
-     reference.html, une fois son propre mode sombre stabilisé : noir plat pour la coque/canevas/
-     menus (plus de teinte dérivée de l'accent), cartes en gris neutre subtil au-dessus de ce noir,
+  /* ---------- Mode sombre — mêmes principes que le skill style-html-generation, reference.html :
+     noir plat pour la coque/canevas/menus (sans teinte dérivée de l'accent), cartes en gris neutre
+     subtil au-dessus de ce noir,
      texte de menu ET lignes de séparation en "Accent Clair", couleur de rôle (accent/secX) au ton
      "Moyen" de la Palette plutôt que la couleur brute (trop terne sur fond noir). Les tons Foncé/
      Moyen/Clair de chaque couleur reprennent tels quels les valeurs réglées à la main dans
@@ -124,7 +124,7 @@
       --accent-dark: #ADC0EB; --sec1-dark: #BAEEF2; --sec2-dark: #C4F2D6; --sec3-dark: #FCD5C5; --sec4-dark: #F9C190;
       --muted-soft: color-mix(in srgb, var(--muted) 25%, transparent);
       --surface-tint: #1F1F1F;
-      /* ombre remplacée par un contour nette (spread sans flou = "bordure" via box-shadow) —
+      /* contour net plutôt qu'une ombre (spread sans flou = "bordure" via box-shadow) —
          une ombre portée classique ne se voit quasiment pas sur un canevas déjà proche du noir. */
       --shadow-card: 0 0 0 1px var(--line), 0 5px 16px rgba(0,0,0,0.6);
       --shadow-bar: 0 0 0 1px var(--line);
@@ -170,7 +170,7 @@
     overflow:hidden;
   }
 
-  /* ---------- TOPNAV (menu horizontal, remplace les anciens onglets logés dans la sidebar) ---------- */
+  /* ---------- TOPNAV (menu horizontal : onglets, recherche, thème) ---------- */
   #topnav{
     flex-shrink:0;
     display:flex;
@@ -238,33 +238,6 @@
   }
   .top-tab:hover{ background:var(--sidebar-hover); color:#fff; }
   .top-tab.active{ background:var(--topnav-tab-active-bg); color:var(--topnav-tab-active-text); font-weight:600; }
-  /* Rangée de résultats sous un onglet — masquée par défaut, affichée seulement pendant une
-     recherche active (classe .searching sur .top-tabs, cf. JS). Compteur toujours visible sur
-     tous les onglets pendant la recherche (— si 0 résultat sur cette page), flèches seulement si
-     ≥1 résultat. */
-  .top-tab-results{
-    display:none;
-    align-items:center;
-    justify-content:center;
-    gap:3px;
-    padding:3px 4px 0;
-    font-family:var(--font-mono);
-    font-size:10px;
-    color:rgba(255,255,255,0.45);
-  }
-  .top-tabs.searching .top-tab-results{ display:flex; }
-  .top-tab-results.has-results{ color:rgba(255,255,255,0.85); }
-  .top-tab-results button{
-    background:none;
-    border:none;
-    padding:0 2px;
-    font-size:10px;
-    line-height:1.4;
-    color:inherit;
-    cursor:pointer;
-  }
-  .top-tab-results button:disabled{ visibility:hidden; }
-  .top-tab-results .ttr-count{ min-width:12px; text-align:center; }
 
   /* ---------- BODY-ROW (sidebar + main, sous le topnav) ---------- */
   #body-row{
@@ -328,15 +301,14 @@
     min-width:34px;
     text-align:center;
   }
-  /* Recherche déplacée dans le topnav (2026-08-21) : un champ unique à droite du menu
-     horizontal, résultats affichés par section — un compteur + des flèches sous chaque onglet
-     plutôt qu'un unique prev/next global, cf. style-tech.md/structure-tech.md. */
+  /* Recherche : champ à droite du menu horizontal, résultats en liste déroulante sous le champ. */
   .topnav-search{
     margin-left:auto;
     padding-right:20px;
     display:flex;
     align-items:center;
     align-self:center;
+    position:relative;
   }
   .topnav-search input{
     width:180px;
@@ -352,6 +324,45 @@
   }
   .topnav-search input::placeholder{color:rgba(255,255,255,0.5);}
   .topnav-search input:focus{border-color:var(--tone-bright);}
+  #search-results{
+    position:absolute;
+    top:calc(100% + 8px);
+    right:20px;
+    width:440px;
+    max-width:calc(100vw - 32px);
+    max-height:70vh;
+    overflow-y:auto;
+    background:var(--surface-tint);
+    box-shadow:var(--shadow-card), 0 12px 30px rgba(0,0,0,0.25);
+    z-index:40;
+  }
+  .sr-empty{padding:12px 14px; font-size:13px; color:var(--muted);}
+  .sr-item{
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:9px 14px;
+    border:none;
+    border-bottom:1px solid var(--line);
+    background:none;
+    color:var(--ink);
+    font-family:var(--font-body);
+    cursor:pointer;
+  }
+  .sr-item:last-child{border-bottom:none;}
+  .sr-item:hover, .sr-item.selected{background:var(--accent-soft);}
+  .sr-head{display:flex; align-items:baseline; gap:8px;}
+  .sr-page{
+    flex:none;
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--sec1-dark);
+  }
+  .sr-title{font-family:var(--font-display); font-weight:600; font-size:14px;}
+  .sr-snippet{margin-top:3px; font-size:12px; line-height:1.5; color:var(--muted);}
+  .sr-snippet b{color:var(--ink); background:color-mix(in srgb, var(--sec4) 35%, transparent); font-weight:600;}
   mark.search-mark{background:color-mix(in srgb, var(--sec4) 55%, white); color:#172033; border-radius:2px; padding:0 1px;}
 
   /* ---------- Bascule clair/sombre ---------- */
@@ -1465,63 +1476,29 @@
   <div class="top-tabs">
     <div class="top-tab-col">
       <button type="button" class="top-tab active" data-page="modelisation">Modélisation</button>
-      <div class="top-tab-results" data-page="modelisation">
-        <button type="button" class="ttr-prev" aria-label="Résultat précédent" disabled>↑</button>
-        <span class="ttr-count"></span>
-        <button type="button" class="ttr-next" aria-label="Résultat suivant" disabled>↓</button>
-      </div>
     </div>
     <div class="top-tab-col">
       <button type="button" class="top-tab" data-page="maths">Maths</button>
-      <div class="top-tab-results" data-page="maths">
-        <button type="button" class="ttr-prev" aria-label="Résultat précédent" disabled>↑</button>
-        <span class="ttr-count"></span>
-        <button type="button" class="ttr-next" aria-label="Résultat suivant" disabled>↓</button>
-      </div>
     </div>
     <div class="top-tab-col">
       <button type="button" class="top-tab" data-page="industrialisation">Industrialisation</button>
-      <div class="top-tab-results" data-page="industrialisation">
-        <button type="button" class="ttr-prev" aria-label="Résultat précédent" disabled>↑</button>
-        <span class="ttr-count"></span>
-        <button type="button" class="ttr-next" aria-label="Résultat suivant" disabled>↓</button>
-      </div>
     </div>
     <div class="top-tab-col">
       <button type="button" class="top-tab" data-page="code">Code</button>
-      <div class="top-tab-results" data-page="code">
-        <button type="button" class="ttr-prev" aria-label="Résultat précédent" disabled>↑</button>
-        <span class="ttr-count"></span>
-        <button type="button" class="ttr-next" aria-label="Résultat suivant" disabled>↓</button>
-      </div>
     </div>
     <div class="top-tab-col">
       <button type="button" class="top-tab" data-page="syntaxes">Syntaxes</button>
-      <div class="top-tab-results" data-page="syntaxes">
-        <button type="button" class="ttr-prev" aria-label="Résultat précédent" disabled>↑</button>
-        <span class="ttr-count"></span>
-        <button type="button" class="ttr-next" aria-label="Résultat suivant" disabled>↓</button>
-      </div>
     </div>
     <div class="top-tab-col">
       <button type="button" class="top-tab" data-page="lexique">Lexique</button>
-      <div class="top-tab-results" data-page="lexique">
-        <button type="button" class="ttr-prev" aria-label="Résultat précédent" disabled>↑</button>
-        <span class="ttr-count"></span>
-        <button type="button" class="ttr-next" aria-label="Résultat suivant" disabled>↓</button>
-      </div>
     </div>
     <div class="top-tab-col">
       <button type="button" class="top-tab" data-page="references">Refs</button>
-      <div class="top-tab-results" data-page="references">
-        <button type="button" class="ttr-prev" aria-label="Résultat précédent" disabled>↑</button>
-        <span class="ttr-count"></span>
-        <button type="button" class="ttr-next" aria-label="Résultat suivant" disabled>↓</button>
-      </div>
     </div>
   </div>
   <div class="topnav-search">
-    <input type="text" id="search-input" placeholder="Rechercher… ( / )" autocomplete="off">
+    <input type="search" id="search-input" placeholder="Rechercher… ( / )" autocomplete="off" aria-controls="search-results">
+    <div id="search-results" hidden></div>
   </div>
   <button type="button" id="theme-toggle" aria-label="Passer en mode sombre" aria-pressed="false">
     <svg class="icon-sun" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 3v2M12 19v2M5.64 5.64l1.42 1.42M16.94 16.94l1.42 1.42M3 12h2M19 12h2M5.64 18.36l1.42-1.42M16.94 7.06l1.42-1.42"/></svg>
@@ -1559,7 +1536,7 @@
       <button id="zoom-in" type="button" aria-label="Augmenter le zoom">+</button>
       <button id="scrollbar-toggle" type="button" aria-label="Afficher/masquer la barre de défilement du menu"></button>
     </div>
-    <div class="last-updated">Dernière mise à jour : __LAST_UPDATED__</div>
+    <div class="last-updated"></div>
   </div>
 </nav>
 
@@ -1620,14 +1597,26 @@
 </main>
 </div>
 
-<script src="data/modelisation.js"></script>
-<script src="data/maths.js"></script>
-<script src="data/industrialisation.js"></script>
-<script src="data/syntaxes.js"></script>
-<script src="data/lexique.js"></script>
-<script src="data/references.js"></script>
+<script src="data/content.js"></script>
 
 <script>
+/* ---------- Données : SITE (www/data/content.js, généré par build/build.py depuis content/) ---------- */
+// Chaque section porte son HTML déjà rendu (sec.html) ; les tableaux par page gardent les noms
+// qu'utilisent la navigation et le Lexique.
+function sectionsOf(page){ return SITE.sections.filter(s => s.page === page); }
+function groupLabelsOf(page){
+  const labels = {};
+  Object.entries(SITE.pages.find(p => p.key === page).groups).forEach(([k, v]) => { labels[k] = escapeHtml(v); });
+  return labels;
+}
+const MODELISATION_SECTIONS = sectionsOf('modelisation');
+const MATHS_SECTIONS = sectionsOf('maths');
+const INDUSTRIALISATION_SECTIONS = sectionsOf('industrialisation');
+const SYNTAXES_SECTIONS = sectionsOf('syntaxes');
+const REFERENCES_SECTIONS = sectionsOf('references');
+const LEXIQUE_TERMS = SITE.lexique.map(e => ({t: e.t, d: e.html}));
+document.querySelector('.last-updated').textContent = 'Dernière mise à jour : ' + SITE.updated;
+
 /* ---------- Zoom (partagé) ---------- */
 const ZOOM_KEY = "memo-zoom", ZOOM_MIN = 0.8, ZOOM_MAX = 1.6, ZOOM_STEP = 0.1, ZOOM_BASE = 1.2;
 let currentZoom = parseFloat(localStorage.getItem(ZOOM_KEY)) || 1;
@@ -1711,221 +1700,6 @@ function escapeHtml(str){
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-/* ---------- Rendu des cartes "concept" (blocks), partagé par Modélisation/Maths/Industrialisation ---------- */
-function richHtml(str){
-  // [[NP:Classe]], [[NP:Classe|Nom convivial]] ou [[NP:Classe|Nom convivial|id-de-page]] —
-  // le nom convivial (s'il est fourni) s'affiche en infobulle au survol ; l'id (s'il est fourni)
-  // transforme le badge en lien cliquable vers la carte correspondante.
-  function modelTag(match, tagClass, tagSuffix){
-    const parts = match.split('|');
-    const name = parts[0];
-    const friendly = parts[1];
-    const target = parts[2];
-    // &#91;/&#93; plutôt que [/] : évite que le remplacement générique [P]/[NP] plus bas ne re-matche ce suffixe déjà généré
-    const inner = name + '<span class="tag-suffix"> &#91;' + tagSuffix + '&#93;</span>';
-    const tooltipAttr = friendly ? ' data-tooltip="' + friendly + '"' : '';
-    if (target){
-      return '<a href="#' + target + '" class="model-tag ' + tagClass + ' model-tag-link"' + tooltipAttr + ' onclick="showSection(\'' + target + '\'); return false;">' + inner + '</a>';
-    }
-    return '<span class="model-tag ' + tagClass + '"' + tooltipAttr + '>' + inner + '</span>';
-  }
-  return escapeHtml(str)
-    .replace(/\[([^\]]+)\]\(#([a-z0-9-]+)\)/g, '<a href="#$2" onclick="showSection(\'$2\'); return false;">$1</a>')
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1 ↗</a>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\[\[NP:(.+?)\]\]/g, (m, g1) => modelTag(g1, 'model-tag-np', 'NP'))
-    .replace(/\[\[P:(.+?)\]\]/g, (m, g1) => modelTag(g1, 'model-tag-p', 'P'))
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/~~(.+?)~~/g, '<s>$1</s>')
-    .replace(/\[NP\]/g, '<span class="tag-np">[NP]</span>')
-    .replace(/\[P\]/g, '<span class="tag-p">[P]</span>');
-}
-
-function renderBlock(container, block){
-  if (block.type === 'category'){
-    const wrap = document.createElement('div');
-    wrap.className = 'concept-block category-block' + (block.divider ? ' with-divider' : '');
-    if (block.id) wrap.id = block.id;
-    const badge = document.createElement('span');
-    badge.className = 'category-badge';
-    badge.textContent = block.label;
-    wrap.appendChild(badge);
-    const desc = document.createElement('p');
-    desc.className = 'category-desc';
-    desc.innerHTML = richHtml(block.description);
-    wrap.appendChild(desc);
-    container.appendChild(wrap);
-  } else if (block.type === 'text'){
-    const p = document.createElement('p');
-    p.className = 'concept-block block-text' + (block.divider ? ' with-divider' : '');
-    if (block.id) p.id = block.id;
-    p.innerHTML = richHtml(block.html);
-    container.appendChild(p);
-  } else if (block.type === 'formula'){
-    const div = document.createElement('div');
-    div.className = 'concept-block block-formula';
-    div.textContent = '$$' + block.tex + '$$';
-    container.appendChild(div);
-  } else if (block.type === 'steps'){
-    const ol = document.createElement('ol');
-    ol.className = 'concept-block concept-steps';
-    block.items.forEach(item => {
-      const li = document.createElement('li');
-      const txt = document.createElement('div');
-      txt.className = 'step-text';
-      txt.innerHTML = richHtml(item);
-      li.appendChild(txt);
-      ol.appendChild(li);
-    });
-    container.appendChild(ol);
-  } else if (block.type === 'compare'){
-    const div = document.createElement('div');
-    div.className = 'concept-block block-compare';
-    block.items.forEach(it => {
-      const card = document.createElement('div');
-      card.className = 'compare-card' + (it.role ? ' role-' + it.role : '');
-      const label = document.createElement('div');
-      label.className = 'compare-label';
-      label.innerHTML = richHtml(it.label);
-      const text = document.createElement('div');
-      text.className = 'compare-text';
-      text.innerHTML = richHtml(it.text);
-      card.appendChild(label);
-      card.appendChild(text);
-      div.appendChild(card);
-    });
-    container.appendChild(div);
-  } else if (block.type === 'code'){
-    const wrap = document.createElement('div');
-    wrap.className = 'concept-block block-code';
-    const code = document.createElement('code');
-    code.innerHTML = richHtml(block.code);
-    wrap.appendChild(code);
-    container.appendChild(wrap);
-  } else if (block.type === 'note'){
-    const div = document.createElement('div');
-    div.className = 'concept-block block-note ' + (block.style || 'tip');
-    div.innerHTML = richHtml(block.html);
-    container.appendChild(div);
-  } else if (block.type === 'table'){
-    const wrap = document.createElement('div');
-    wrap.className = 'concept-block block-table-wrap';
-    const table = document.createElement('table');
-    table.className = 'concept-mini-table';
-    const thead = document.createElement('thead');
-    thead.innerHTML = '<tr>' + block.headers.map(h => '<th>' + richHtml(h) + '</th>').join('') + '</tr>';
-    const tbody = document.createElement('tbody');
-    block.rows.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = row.map(c => '<td>' + richHtml(c) + '</td>').join('');
-      tbody.appendChild(tr);
-    });
-    table.appendChild(thead);
-    table.appendChild(tbody);
-    wrap.appendChild(table);
-    container.appendChild(wrap);
-  } else if (block.type === 'diagram'){
-    const wrap = document.createElement('div');
-    wrap.className = 'concept-block block-diagram';
-    wrap.innerHTML = block.svg;
-    container.appendChild(wrap);
-  } else if (block.type === 'derivation'){
-    const wrap = document.createElement('div');
-    wrap.className = 'concept-block concept-derivation';
-    block.steps.forEach((step, idx) => {
-      const stepEl = document.createElement('div');
-      stepEl.className = 'derivation-step';
-      if (step.id) stepEl.id = step.id;
-      const head = document.createElement('div');
-      head.className = 'derivation-step-head';
-      const num = document.createElement('span');
-      num.className = 'derivation-num';
-      num.textContent = step.num !== undefined ? step.num : idx + (block.startIndex || 0);
-      const title = document.createElement('span');
-      title.className = 'derivation-title';
-      title.innerHTML = richHtml(step.title);
-      head.appendChild(num);
-      head.appendChild(title);
-      stepEl.appendChild(head);
-      const body = document.createElement('div');
-      body.className = 'derivation-step-body';
-      (step.blocks || []).forEach(b => renderBlock(body, b));
-      stepEl.appendChild(body);
-      wrap.appendChild(stepEl);
-    });
-    container.appendChild(wrap);
-  }
-}
-
-/* ---------- Rendu Syntaxes (tables) ---------- */
-function setCodeHtml(el, text){
-  el.innerHTML = escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-}
-function renderSyntaxContent(container, content){
-  if (Array.isArray(content)){
-    content.forEach(seg => {
-      if (seg.code !== undefined){
-        const code = document.createElement('code');
-        setCodeHtml(code, seg.code);
-        container.appendChild(code);
-      } else if (seg.table !== undefined){
-        const tableBlock = document.createElement('div');
-        tableBlock.className = 'mini-table';
-        tableBlock.textContent = seg.table;
-        container.appendChild(tableBlock);
-      } else if (seg.label !== undefined){
-        const label = document.createElement('div');
-        label.className = 'mini-label';
-        label.textContent = seg.label;
-        container.appendChild(label);
-      }
-    });
-  } else if (container.classList.contains('col-syntaxe')) {
-    const code = document.createElement('code');
-    setCodeHtml(code, content);
-    container.appendChild(code);
-  } else if (container.classList.contains('col-params')) {
-    content.split('\n').forEach(line => {
-      const div = document.createElement('div');
-      div.className = 'param-line';
-      div.textContent = line;
-      container.appendChild(div);
-    });
-  } else {
-    setCodeHtml(container, content);
-  }
-}
-function renderSyntaxTable(panel, sec){
-  const table = document.createElement('table');
-  table.className = 'syntax-table';
-  const thead = document.createElement('thead');
-  const headers = sec.headers || ["Objectif", "Syntaxe", "Résultat"];
-  const colClasses = sec.colClasses || ["col-objectif", "col-syntaxe", "col-resultat"];
-  thead.innerHTML = '<tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
-  const tbody = document.createElement('tbody');
-  sec.rows.forEach((row) => {
-    const tr = document.createElement('tr');
-    const broken = row.length > headers.length ? row[row.length - 1] : undefined;
-    headers.forEach((label, idx) => {
-      const td = document.createElement('td');
-      td.className = colClasses[idx] || ('col-c' + idx);
-      td.dataset.label = label;
-      if (idx === 1 && broken){
-        const brokenCode = document.createElement('code');
-        brokenCode.className = 'broken-code';
-        setCodeHtml(brokenCode, broken);
-        td.appendChild(brokenCode);
-      }
-      renderSyntaxContent(td, row[idx]);
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  });
-  table.appendChild(thead);
-  table.appendChild(tbody);
-  panel.appendChild(table);
-}
-
 /* ---------- Constructeur générique nav-group/nav-subgroup/nav-subgroup(imbriqué)/panel ---------- */
 // Composant "catégorie repliable" réutilisé à toute profondeur : `sec.subgroup` (optionnel) crée une
 // boîte .nav-subgroup sous le groupe ; `sec.subsubgroup` (optionnel, ne peut exister que si `subgroup`
@@ -1933,7 +1707,7 @@ function renderSyntaxTable(panel, sec){
 // boîte .nav-subgroup imbriquée dans la première, avec exactement le même balisage/comportement (juste
 // plus indenté en CSS) — pas de présentation différente selon le niveau. Contrainte identique à
 // group/subgroup : les entrées partageant un même subgroup (ou un même subsubgroup) DOIVENT rester
-// contiguës dans le fichier de données, sinon la boîte se recrée en double.
+// contiguës dans SITE.sections (le build le vérifie), sinon la boîte se recrée en double.
 function buildPanelPage(sections, groupLabels, navRootEl, mainRootEl, renderPanelBody){
   let currentGroup = null, currentSubgroup = null, currentSubsubgroup = null;
   let itemsWrapper = null, subItemsWrapper = null, subsubItemsWrapper = null;
@@ -2016,40 +1790,20 @@ function buildPanelPage(sections, groupLabels, navRootEl, mainRootEl, renderPane
 }
 
 /* ---------- groupLabels par page (namespace séparé : "ml" a un libellé différent en Modélisation et en Syntaxes) ---------- */
-const MODELISATION_GROUP_LABELS = {intro:"Introduction", ml:"Machine Learning", dl:"Deep Learning", rl:"Reinforcement Learning"};
-const MATHS_GROUP_LABELS = {"stats-desc":"Statistiques descriptives", proba:"Probabilités &amp; lois", inference:"Inférence statistique", algebre:"Algèbre linéaire", "math-regression":"Régression", signal:"Signal &amp; Fourier"};
-const INDUSTRIALISATION_GROUP_LABELS = {aieng:"AI Engineering", aisec:"Sécurité &amp; Gouvernance des Modèles", mlops:"MLOps", infra:"Infrastructure"};
-const SYNTAXES_GROUP_LABELS = {numpy:"Numpy", pandas:"Pandas", plot:"Matplotlib &amp; Seaborn", stats:"Scipy.stats", regression:"Statsmodels &amp; Régression", ml:"Scikit-learn", dash:"Dash", dl:"Keras &amp; TensorFlow", aieng:"LangChain &amp; LLM APIs", rl:"Gymnasium &amp; Stable Baselines3"};
-const REFERENCES_GROUP_LABELS = {tools:"Documentation & Cheat sheets", misc:"Maths, Régression &amp; Data-viz", modelisation:"Modélisation", industrialisation:"Industrialisation", data:"Sources de données"};
+const MODELISATION_GROUP_LABELS = groupLabelsOf('modelisation');
+const MATHS_GROUP_LABELS = groupLabelsOf('maths');
+const INDUSTRIALISATION_GROUP_LABELS = groupLabelsOf('industrialisation');
+const SYNTAXES_GROUP_LABELS = groupLabelsOf('syntaxes');
+const REFERENCES_GROUP_LABELS = groupLabelsOf('references');
 
-// Gabarit de carte partagé par les 3 pages issues de l'ancien "Concepts" (Modélisation/Maths/
-// Industrialisation) — même rendu, seul le contenu (blocks) diffère.
-function renderConceptPanelBody(panel, sec){
-  const body = document.createElement('div');
-  body.className = 'concept-body';
-  if (sec.intro){
-    const introEl = document.createElement('p');
-    introEl.className = 'concept-intro';
-    introEl.innerHTML = richHtml(sec.intro);
-    body.appendChild(introEl);
-  }
-  sec.blocks.forEach(b => renderBlock(body, b));
-  panel.appendChild(body);
+function renderPanelHtml(panel, sec){
+  panel.insertAdjacentHTML('beforeend', sec.html);
 }
-buildPanelPage(MODELISATION_SECTIONS, MODELISATION_GROUP_LABELS, document.getElementById('navbody-modelisation'), document.getElementById('mainpage-modelisation'), renderConceptPanelBody);
-buildPanelPage(MATHS_SECTIONS, MATHS_GROUP_LABELS, document.getElementById('navbody-maths'), document.getElementById('mainpage-maths'), renderConceptPanelBody);
-buildPanelPage(INDUSTRIALISATION_SECTIONS, INDUSTRIALISATION_GROUP_LABELS, document.getElementById('navbody-industrialisation'), document.getElementById('mainpage-industrialisation'), renderConceptPanelBody);
-
-buildPanelPage(SYNTAXES_SECTIONS, SYNTAXES_GROUP_LABELS, document.getElementById('navbody-syntaxes'), document.getElementById('mainpage-syntaxes'), (panel, sec) => {
-  renderSyntaxTable(panel, sec);
-});
-
-buildPanelPage(REFERENCES_SECTIONS, REFERENCES_GROUP_LABELS, document.getElementById('navbody-references'), document.getElementById('mainpage-references'), (panel, sec) => {
-  const list = document.createElement('div');
-  list.className = 'linklist';
-  list.innerHTML = sec.html;
-  panel.appendChild(list);
-});
+buildPanelPage(MODELISATION_SECTIONS, MODELISATION_GROUP_LABELS, document.getElementById('navbody-modelisation'), document.getElementById('mainpage-modelisation'), renderPanelHtml);
+buildPanelPage(MATHS_SECTIONS, MATHS_GROUP_LABELS, document.getElementById('navbody-maths'), document.getElementById('mainpage-maths'), renderPanelHtml);
+buildPanelPage(INDUSTRIALISATION_SECTIONS, INDUSTRIALISATION_GROUP_LABELS, document.getElementById('navbody-industrialisation'), document.getElementById('mainpage-industrialisation'), renderPanelHtml);
+buildPanelPage(SYNTAXES_SECTIONS, SYNTAXES_GROUP_LABELS, document.getElementById('navbody-syntaxes'), document.getElementById('mainpage-syntaxes'), renderPanelHtml);
+buildPanelPage(REFERENCES_SECTIONS, REFERENCES_GROUP_LABELS, document.getElementById('navbody-references'), document.getElementById('mainpage-references'), renderPanelHtml);
 
 /* ---------- Rendu Lexique (liste continue par lettre) ---------- */
 function firstLetter(term){
@@ -2175,16 +1929,7 @@ function lexGroupKey(page, group){ return page ? (page + '-' + group) : 'other';
 const LEX_GROUP_LABELS = {other: "Autres / transverses"};
 Object.entries({modelisation: MODELISATION_GROUP_LABELS, maths: MATHS_GROUP_LABELS, industrialisation: INDUSTRIALISATION_GROUP_LABELS, syntaxes: SYNTAXES_GROUP_LABELS})
   .forEach(([page, labels]) => { Object.entries(labels).forEach(([group, label]) => { LEX_GROUP_LABELS[lexGroupKey(page, group)] = label; }); });
-// Quelques termes du Lexique ne renvoient vers aucune section Concepts/Syntaxes dédiée (pas de href) —
-// classés ici à la main plutôt que dans une section "Autres / transverses" (page/group réels malgré tout,
-// pour rester cohérent avec la règle "un vrai groupe du site" ci-dessus).
-const LEX_MANUAL_SECTION = {
-  "Cross-Entropy": {page:"modelisation", group:"ml", subgroup:"Entraînement (fit)"},
-  "Hyperparamètre": {page:"modelisation", group:"ml", subgroup:"Concepts Modèles"},
-  "MAP (Maximum a Posteriori)": {page:"maths", group:"proba", subgroup:"Général"},
-  "Curse of Dimensionality (fléau de la dimension)": {page:"modelisation", group:"ml", subgroup:"Data Preparation"},
-};
-// Union des 3 pages issues de l'ancien "Concepts" (Modélisation/Maths/Industrialisation) — le
+// Union des 3 onglets de cartes concept (Modélisation/Maths/Industrialisation) — le
 // regroupement du Lexique se fait par `group`/`subgroup`/`subsubgroup` réels (cf.
 // doc-implementation/lexique-tech.md).
 const ALL_CONCEPT_SECTIONS = [...MODELISATION_SECTIONS, ...MATHS_SECTIONS, ...INDUSTRIALISATION_SECTIONS];
@@ -2193,7 +1938,7 @@ const ALL_CONCEPT_SECTIONS = [...MODELISATION_SECTIONS, ...MATHS_SECTIONS, ...IN
 const lexIdToSection = {};
 ALL_CONCEPT_SECTIONS.forEach(s => lexIdToSection[s.id] = {page: idToPage[s.id], group:s.group, subgroup:s.subgroup || null, subsubgroup:s.subsubgroup || null});
 SYNTAXES_SECTIONS.forEach(s => { if(!(s.id in lexIdToSection)) lexIdToSection[s.id] = {page: idToPage[s.id], group:s.group, subgroup:s.subgroup || null, subsubgroup:s.subsubgroup || null}; });
-// Ordre des groupes / sous-groupes / sous-sous-groupes = ordre naturel des fichiers de données
+// Ordre des groupes / sous-groupes / sous-sous-groupes = ordre des sections dans SITE
 // (mêmes priorités que la sidebar réelle Modélisation/Maths/Industrialisation/Syntaxes).
 const lexGroupOrder = [];
 const lexSubgroupOrderByGroup = {};
@@ -2218,10 +1963,9 @@ LEXIQUE_TERMS.forEach(entry => {
   const m = entry.d.match(/href="#([\w-]+)"/);
   const id = m ? m[1] : null;
   const section = id ? lexIdToSection[id] : null;
-  const manual = LEX_MANUAL_SECTION[entry.t];
-  const page = section ? section.page : (manual ? manual.page : null);
-  const rawGroup = section ? section.group : (manual ? manual.group : null);
-  const subgroup = (section && section.subgroup) || (manual && manual.subgroup) || 'Général';
+  const page = section ? section.page : null;
+  const rawGroup = section ? section.group : null;
+  const subgroup = (section && section.subgroup) || 'Général';
   const subsubgroup = section ? section.subsubgroup : null;
   const group = lexGroupKey(page, rawGroup);
   if (!lexByGroup[group]) lexByGroup[group] = {};
@@ -2241,8 +1985,8 @@ lexGroupOrder.filter(g => lexByGroup[g]).forEach(group => {
   // Nuage de tags de la sidebar, sur 2 niveaux : le groupe (tag plein), puis ses sous-groupes
   // (petits tags juste en dessous) — toujours visibles, pas d'accordéon à déplier.
   // `group` (clé composée `page-group`, cf. plus haut) est déjà un nom de classe CSS valide —
-  // pas besoin d'une table de correspondance séparée (plus de couleur par catégorie depuis le
-  // 2026-08-21, ce hook ne sert plus qu'au ciblage JS/DOM).
+  // pas besoin d'une table de correspondance séparée ; la classe sert au ciblage JS/DOM (aucune
+  // couleur par catégorie).
   const groupCardClass = group;
   const navTagGroup = document.createElement('div');
   navTagGroup.className = 'nav-tag-group';
@@ -2389,7 +2133,7 @@ function showSection(id){
   // hashchange (même si c'est CE code-ci, via showSection, qui vient de le causer) — routeToHash()
   // se relance alors en cascade et écrase par son propre `main-root.scrollTo(0,0)` tout défilement
   // qu'un appelant de showSection() aurait positionné juste après (cf. routeToHash, cas générique,
-  // qui appelle showSection PUIS scrollElementIntoMainRoot — le second scroll se faisait annuler par
+  // qui appelle showSection PUIS scrollElementIntoMainRoot — le second scroll serait annulé par
   // ce rappel en cascade, de façon asynchrone donc invisible en testant pas à pas).
   if (window.location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id);
   document.getElementById('main-root').scrollTo(0, 0);
@@ -2447,7 +2191,239 @@ function routeToHash(){
   }
 }
 window.addEventListener('hashchange', routeToHash);
+
+// Liens internes du contenu (href="#id", générés par le build) : routés sans saut d'ancre natif,
+// qui décalerait la fenêtre (cf. scrollElementIntoMainRoot). Les liens qui gèrent déjà leur clic
+// (Lexique, schémas) ont appelé preventDefault avant.
+document.addEventListener('click', e => {
+  if (e.defaultPrevented) return;
+  const a = e.target.closest('a[href^="#"]');
+  const id = a ? decodeURIComponent(a.getAttribute('href').slice(1)) : '';
+  if (!id) return;
+  e.preventDefault();
+  if (window.location.hash.slice(1) !== id) history.pushState(null, '', '#' + id);
+  routeToHash();
+});
 routeToHash();
+</script>
+
+<script>
+/* ---------- Recherche globale (moteur et présentation de memoria-gcp) ----------
+   Index construit au chargement à partir du contenu déjà rendu, avant le passage de KaTeX : les
+   formules y figurent sous leur forme source. Le texte est normalisé caractère par caractère
+   (minuscules, sans accents) en gardant la même longueur que l'original, pour que les positions
+   trouvées dans le texte normalisé servent directement à l'extrait et au surlignage. */
+(function(){
+  const normCache = new Map();
+  function normChar(c){
+    const code = c.charCodeAt(0);
+    if (code < 128) return (code >= 65 && code <= 90) ? String.fromCharCode(code + 32) : c;
+    let r = normCache.get(c);
+    if (r === undefined){
+      r = c.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+      r = r.length ? r[0] : " ";
+      normCache.set(c, r);
+    }
+    return r;
+  }
+  function norm(s){
+    let out = "";
+    for (let i = 0; i < s.length; i++) out += normChar(s[i]);
+    return out;
+  }
+  function el(tag, className, text){
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  const pageLabel = Object.fromEntries(SITE.pages.map(p => [p.key, p.label]));
+  const searchIndex = [];
+  function indexEntry(id, page, title, textEl){
+    const text = (textEl ? textEl.textContent : "").replace(/\s+/g, " ").trim();
+    searchIndex.push({id, page, title, titleN: norm(title), text, textN: norm(text)});
+  }
+  document.querySelectorAll(".panel").forEach(panel => {
+    const id = panel.id.slice("panel-".length);
+    const body = panel.cloneNode(true);
+    body.querySelector(".panel-header").remove();
+    indexEntry(id, idToPage[id], panel.querySelector(".panel-header h2").textContent, body);
+  });
+  document.querySelectorAll("#lex-content .lex-entry").forEach(entry => {
+    indexEntry(entry.id, "lexique", entry.querySelector(".lex-term").textContent, entry.querySelector(".lex-def"));
+  });
+
+  function queryTerms(q){
+    return norm(q).split(/\s+/).filter(Boolean);
+  }
+  function countOccurrences(hay, term, max){
+    let n = 0, pos = hay.indexOf(term);
+    while (pos >= 0 && n < max){ n++; pos = hay.indexOf(term, pos + term.length); }
+    return n;
+  }
+  function search(q){
+    const terms = queryTerms(q);
+    if (!terms.length) return [];
+    const phrase = terms.join(" ");
+    const results = [];
+    searchIndex.forEach(entry => {
+      let score = 0;
+      for (const t of terms){
+        const inTitle = entry.titleN.includes(t);
+        const inText = countOccurrences(entry.textN, t, 5);
+        if (!inTitle && !inText) return;
+        score += (inTitle ? 10 : 0) + inText;
+      }
+      if (terms.length > 1 && (entry.titleN.includes(phrase) || entry.textN.includes(phrase))) score += 8;
+      results.push({entry, score});
+    });
+    return results.sort((a, b) => b.score - a.score).slice(0, 40);
+  }
+
+  // Intervalles [début, fin) des occurrences des termes dans un texte normalisé, fusionnés
+  function matchRanges(textN, terms){
+    const ranges = [];
+    terms.forEach(t => {
+      for (let pos = textN.indexOf(t); pos >= 0; pos = textN.indexOf(t, pos + t.length)) ranges.push([pos, pos + t.length]);
+    });
+    ranges.sort((a, b) => a[0] - b[0]);
+    const merged = [];
+    ranges.forEach(r => {
+      const last = merged[merged.length - 1];
+      if (last && r[0] <= last[1]) last[1] = Math.max(last[1], r[1]);
+      else merged.push(r.slice());
+    });
+    return merged;
+  }
+  function snippetHtml(entry, terms){
+    const ranges = matchRanges(entry.textN, terms);
+    if (!ranges.length) return escapeHtml(entry.text.slice(0, 140)) + (entry.text.length > 140 ? "…" : "");
+    const start = Math.max(0, ranges[0][0] - 50);
+    const end = Math.min(entry.text.length, ranges[0][0] + 130);
+    let out = start > 0 ? "…" : "", cursor = start;
+    ranges.filter(r => r[0] >= start && r[1] <= end).forEach(r => {
+      out += escapeHtml(entry.text.slice(cursor, r[0])) + "<b>" + escapeHtml(entry.text.slice(r[0], r[1])) + "</b>";
+      cursor = r[1];
+    });
+    return out + escapeHtml(entry.text.slice(cursor, end)) + (end < entry.text.length ? "…" : "");
+  }
+
+  let marks = [];
+  function clearMarks(){
+    marks.forEach(m => {
+      const parent = m.parentNode;
+      if (!parent) return;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      parent.normalize();
+    });
+    marks = [];
+  }
+  function highlightIn(root, terms){
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        const p = node.parentElement;
+        if (!node.nodeValue.trim() || !p || p.closest("svg, script, style, button, .katex")) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      const text = node.nodeValue;
+      const ranges = matchRanges(norm(text), terms);
+      if (!ranges.length) return;
+      const frag = document.createDocumentFragment();
+      let cursor = 0;
+      ranges.forEach(([a, b]) => {
+        if (a > cursor) frag.appendChild(document.createTextNode(text.slice(cursor, a)));
+        const mark = el("mark", "search-mark", text.slice(a, b));
+        frag.appendChild(mark);
+        marks.push(mark);
+        cursor = b;
+      });
+      if (cursor < text.length) frag.appendChild(document.createTextNode(text.slice(cursor)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
+  const searchInput = document.getElementById("search-input");
+  const resultsEl = document.getElementById("search-results");
+  let currentResults = [], selected = 0, searchTimer = null;
+
+  function renderResults(){
+    const q = searchInput.value.trim();
+    if (!q){ resultsEl.hidden = true; return; }
+    currentResults = search(q);
+    selected = 0;
+    const terms = queryTerms(q);
+    resultsEl.innerHTML = "";
+    if (!currentResults.length) resultsEl.appendChild(el("div", "sr-empty", "Aucun résultat."));
+    currentResults.forEach((r, i) => {
+      const item = el("button", "sr-item" + (i === 0 ? " selected" : ""));
+      item.type = "button";
+      const head = el("div", "sr-head");
+      head.append(el("span", "sr-page", pageLabel[r.entry.page]), el("span", "sr-title", r.entry.title));
+      const snippet = el("div", "sr-snippet");
+      snippet.innerHTML = snippetHtml(r.entry, terms);
+      item.append(head, snippet);
+      item.addEventListener("mousedown", e => e.preventDefault());
+      item.addEventListener("click", () => openResult(i));
+      resultsEl.appendChild(item);
+    });
+    resultsEl.hidden = false;
+  }
+  function selectResult(i){
+    const items = resultsEl.querySelectorAll(".sr-item");
+    if (!items.length) return;
+    selected = (i + items.length) % items.length;
+    items.forEach((it, k) => it.classList.toggle("selected", k === selected));
+    items[selected].scrollIntoView({block: "nearest"});
+  }
+  function openResult(i){
+    const r = currentResults[i];
+    if (!r) return;
+    clearMarks();
+    if (window.location.hash.slice(1) !== r.entry.id) history.pushState(null, "", "#" + r.entry.id);
+    routeToHash();
+    const target = r.entry.page === "lexique" ? document.getElementById(r.entry.id) : document.getElementById("panel-" + r.entry.id);
+    highlightIn(target, queryTerms(searchInput.value));
+    if (marks.length){
+      marks[0].classList.add("current");
+      scrollElementIntoMainRoot(marks[0], {center: true});
+    }
+    resultsEl.hidden = true;
+    searchInput.blur();
+  }
+
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderResults, 120);
+  });
+  searchInput.addEventListener("focus", () => { if (searchInput.value.trim()) renderResults(); });
+  searchInput.addEventListener("blur", () => { resultsEl.hidden = true; });
+  searchInput.addEventListener("keydown", e => {
+    if (e.key === "ArrowDown"){ e.preventDefault(); selectResult(selected + 1); }
+    else if (e.key === "ArrowUp"){ e.preventDefault(); selectResult(selected - 1); }
+    else if (e.key === "Enter"){
+      e.preventDefault();
+      clearTimeout(searchTimer);
+      if (resultsEl.hidden) renderResults();
+      openResult(selected);
+    } else if (e.key === "Escape"){
+      searchInput.value = "";
+      resultsEl.hidden = true;
+      clearMarks();
+      searchInput.blur();
+    }
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "/" && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){
+      e.preventDefault();
+      searchInput.focus();
+    }
+  });
+})();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
@@ -2930,7 +2906,7 @@ routeToHash();
     darts: {pkg:'darts', version:'0.46.1'},
   };
 
-  // Construit le contenu d'un vrai requirements.txt (texte brut, plus de Python — vit dans son
+  // Construit le contenu d'un vrai requirements.txt (texte brut, pas du Python — vit dans son
   // propre panneau à part, cf. #code-output-requirements/-usage) à partir des imports réellement
   // utilisés dans le script — seuls les paquets tiers y figurent (pickle/math sont dans la
   // bibliothèque standard, jamais listés).
@@ -3602,179 +3578,6 @@ routeToHash();
 })();
 </script>
 
-<script>
-/* ---------- Recherche globale (sur toutes les pages, actives ou non), résultats groupés PAR
-   PAGE : un compteur + prev/next sous chaque onglet du topnav plutôt qu'un seul prev/next global
-   (cf. structure-tech.md pour le détail — refonte 2026-08-21, l'ancienne barre de recherche vivait
-   dans la sidebar avec un seul compteur "n/total" toutes pages confondues). ---------- */
-(function(){
-  const searchInput = document.getElementById('search-input');
-  const topTabsEl = document.querySelector('.top-tabs');
-
-  const pageCells = {};
-  PAGES.forEach(page => {
-    const row = document.querySelector('.top-tab-results[data-page="' + page + '"]');
-    if (!row) return;
-    pageCells[page] = {
-      row,
-      prevBtn: row.querySelector('.ttr-prev'),
-      nextBtn: row.querySelector('.ttr-next'),
-      countEl: row.querySelector('.ttr-count'),
-    };
-  });
-
-  let allMarks = [];
-  let marksByPage = {};
-  let indexByPage = {};
-
-  function escapeRegExp(s){
-    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  function clearMarks(){
-    allMarks.forEach(mark => {
-      const parent = mark.parentNode;
-      if (!parent) return;
-      parent.replaceChild(document.createTextNode(mark.textContent), mark);
-      parent.normalize();
-    });
-    allMarks = [];
-    marksByPage = {};
-    indexByPage = {};
-  }
-
-  function highlightNode(node, pattern, page){
-    const text = node.nodeValue;
-    const regex = new RegExp(pattern, 'gi');
-    regex.lastIndex = 0;
-    if (!regex.test(text)) return;
-    regex.lastIndex = 0;
-    const frag = document.createDocumentFragment();
-    let lastIndex = 0, m;
-    while ((m = regex.exec(text))){
-      if (m.index > lastIndex) frag.appendChild(document.createTextNode(text.slice(lastIndex, m.index)));
-      const mark = document.createElement('mark');
-      mark.className = 'search-mark';
-      mark.textContent = m[0];
-      frag.appendChild(mark);
-      allMarks.push(mark);
-      marksByPage[page].push(mark);
-      lastIndex = m.index + m[0].length;
-    }
-    if (lastIndex < text.length) frag.appendChild(document.createTextNode(text.slice(lastIndex)));
-    node.parentNode.replaceChild(frag, node);
-  }
-
-  function buildMarksForPage(page, pattern){
-    const scopeEl = document.getElementById('mainpage-' + page);
-    if (!scopeEl) return;
-    const walker = document.createTreeWalker(scopeEl, NodeFilter.SHOW_TEXT, {
-      acceptNode(node){
-        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-        const p = node.parentElement;
-        if (!p || p.closest('.katex') || p.closest('script,style')) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }
-    });
-    const nodes = [];
-    let n;
-    while ((n = walker.nextNode())) nodes.push(n);
-    nodes.forEach(node => highlightNode(node, pattern, page));
-  }
-
-  function buildMarks(query){
-    const pattern = escapeRegExp(query);
-    PAGES.forEach(page => { marksByPage[page] = []; });
-    PAGES.forEach(page => buildMarksForPage(page, pattern));
-  }
-
-  function updateUI(){
-    const hasQuery = searchInput.value.trim().length > 0;
-    topTabsEl.classList.toggle('searching', hasQuery);
-    PAGES.forEach(page => {
-      const cell = pageCells[page];
-      if (!cell) return;
-      const marks = marksByPage[page] || [];
-      cell.row.classList.toggle('has-results', marks.length > 0);
-      cell.countEl.textContent = hasQuery ? (marks.length || '—') : '';
-      cell.prevBtn.disabled = cell.nextBtn.disabled = marks.length === 0;
-    });
-  }
-
-  function goToInPage(page, idx){
-    const marks = marksByPage[page] || [];
-    if (!marks.length) return;
-    allMarks.forEach(m => m.classList.remove('current'));
-    const newIdx = ((idx % marks.length) + marks.length) % marks.length;
-    indexByPage[page] = newIdx;
-    const mark = marks[newIdx];
-    mark.classList.add('current');
-    const panel = mark.closest('.panel');
-    if (panel){
-      if (!panel.classList.contains('active')) showSection(panel.id.replace('panel-', ''));
-    } else if (page !== currentPage){
-      showPage(page);
-    }
-    scrollElementIntoMainRoot(mark, {center: true, smooth: true});
-  }
-
-  function firstPageWithResults(){
-    return PAGES.find(p => (marksByPage[p] || []).length > 0);
-  }
-
-  function runSearch(){
-    clearMarks();
-    const q = searchInput.value.trim();
-    if (!q){ updateUI(); return; }
-    buildMarks(q);
-    updateUI();
-    if ((marksByPage[currentPage] || []).length){
-      goToInPage(currentPage, 0);
-    } else {
-      const p = firstPageWithResults();
-      if (p) goToInPage(p, 0);
-    }
-  }
-
-  PAGES.forEach(page => {
-    const cell = pageCells[page];
-    if (!cell) return;
-    cell.prevBtn.addEventListener('click', () => {
-      goToInPage(page, (indexByPage[page] != null ? indexByPage[page] : 0) - 1);
-    });
-    cell.nextBtn.addEventListener('click', () => {
-      goToInPage(page, (indexByPage[page] != null ? indexByPage[page] : -1) + 1);
-    });
-  });
-
-  searchInput.addEventListener('input', runSearch);
-  searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter'){
-      e.preventDefault();
-      const dir = e.shiftKey ? -1 : 1;
-      if ((marksByPage[currentPage] || []).length){
-        goToInPage(currentPage, (indexByPage[currentPage] != null ? indexByPage[currentPage] : -1) + dir);
-      } else {
-        const p = firstPageWithResults();
-        if (p) goToInPage(p, 0);
-      }
-    } else if (e.key === 'Escape'){
-      searchInput.value = '';
-      clearMarks();
-      updateUI();
-      searchInput.blur();
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === '/' && document.activeElement !== searchInput &&
-        !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)){
-      e.preventDefault();
-      searchInput.focus();
-    }
-  });
-})();
-</script>
 
 </body>
 </html>

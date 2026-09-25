@@ -1,0 +1,55 @@
+# Onglets du site, dans l'ordre du menu, et groupes de chaque onglet (= sous-dossiers de
+# content/<key>/) dans l'ordre du menu latéral. type : sections (défaut), code, lexique.
+
+title: MemorIA
+pages:
+- key: modelisation
+  label: Modélisation
+  groups:
+    intro: Introduction
+    ml: Machine Learning
+    dl: Deep Learning
+    rl: Reinforcement Learning
+- key: maths
+  label: Maths
+  groups:
+    stats-desc: Statistiques descriptives
+    proba: Probabilités & lois
+    inference: Inférence statistique
+    algebre: Algèbre linéaire
+    math-regression: Régression
+    signal: Signal & Fourier
+- key: industrialisation
+  label: Industrialisation
+  groups:
+    aieng: AI Engineering
+    aisec: Sécurité & Gouvernance des Modèles
+    mlops: MLOps
+    infra: Infrastructure
+- key: code
+  label: Code
+  type: code
+- key: syntaxes
+  label: Syntaxes
+  groups:
+    numpy: Numpy
+    pandas: Pandas
+    stats: Scipy.stats
+    regression: Statsmodels & Régression
+    ml: Scikit-learn
+    plot: Matplotlib & Seaborn
+    dash: Dash
+    dl: Keras & TensorFlow
+    aieng: LangChain & LLM APIs
+    rl: Gymnasium & Stable Baselines3
+- key: lexique
+  label: Lexique
+  type: lexique
+- key: references
+  label: Refs
+  groups:
+    tools: Documentation & Cheat sheets
+    modelisation: Modélisation
+    misc: Maths, Régression & Data-viz
+    industrialisation: Industrialisation
+    data: Sources de données
